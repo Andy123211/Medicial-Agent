@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <!-- 设置文档字符编码为UTF-8，支持中文显示 -->
+    <meta charset="UTF-8">
+    <!-- 设置视口，确保移动端正确显示 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 页面标题 -->
+    <title>Tlias智能学习辅助系统</title>
+    <!-- 引入Vue -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- 添加 axios 库 -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        /* 重置所有元素的默认样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* 页面主体样式 */
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #f0f2f5;
+        }
+
+        /* 顶栏容器样式 */
+        .header {
+            background-color: #fff;  /* 白色背景 */
+            padding: 20px 40px;      /* 上下20px，左右40px的内边距 */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);  /* 添加阴影效果 */
+            display: flex;           /* 使用弹性布局 */
+            justify-content: space-between;  /* 两端对齐 */
+            align-items: center;     /* 垂直居中对齐 */
+        }
+
+        /* 标题文字样式 */
+        .header-title {
+            font-size: 24px;         /* 字体大小 */
+            font-weight: bold;       /* 字体加粗 */
+            color: #333;             /* 深灰色文字 */
+        }
+
+        /* 退出登录链接样式 */
+        .logout-link {
+            color: #666;             /* 链接颜色 */
+            text-decoration: none;   /* 移除下划线 */
+            font-size: 16px;         /* 字体大小 */
+        }
+
+        /* 退出登录链接悬停效果 */
+        .logout-link:hover {
+            color: #1890ff;          /* 悬停时变为蓝色 */
+        }
+
+        /* 搜索表单区域样式 */
+        .search-form {
+            background-color: #fff;  /* 白色背景 */
+            padding: 20px 40px;      /* 内边距 */
+            margin: 20px 40px;       /* 外边距，与其他区域保持间距 */
+            border-radius: 4px;      /* 圆角效果 */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);  /* 阴影效果，增加层次感 */
+        }
+
+        /* 表单容器样式 */
+        .form-container {
+            display: flex;           /* 使用弹性布局 */
+            align-items: center;     /* 垂直居中对齐 */
+            gap: 20px;              /* 表单项之间的间距 */
+        }
+
+        /* 表单项样式 */
+        .form-item {
+            display: flex;           /* 使用弹性布局 */
+            align-items: center;     /* 垂直居中对齐 */
+            gap: 8px;               /* 标签和输入框之间的间距 */
+        }
+
+        /* 标签样式 */
+        .form-item label {
+            font-size: 14px;         /* 标签字体大小 */
+            color: #333;             /* 标签文字颜色 */
+            white-space: nowrap;     /* 防止标签文字换行 */
+        }
+
+        /* 输入框和下拉框样式 */
+        .form-item input,
+        .form-item select {
+            padding: 8px 12px;       /* 内边距 */
+            border: 1px solid #d9d9d9;  /* 边框颜色 */
+            border-radius: 4px;      /* 圆角效果 */
+            font-size: 14px;         /* 字体大小 */
+            min-width: 120px;        /* 最小宽度 */
+            outline: none;           /* 移除默认的焦点轮廓 */
+            transition: all 0.3s;    /* 添加过渡效果 */
+        }
+
+        /* 输入框和下拉框焦点样式 */
+        .form-item input:focus,
+        .form-item select:focus {
+            border-color: #1890ff;   /* 焦点时边框颜色 */
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);  /* 焦点时阴影效果 */
+        }
+
+        /* 按钮容器样式 */
+        .button-group {
+            display: flex;           /* 使用弹性布局 */
+            gap: 12px;              /* 按钮之间的间距 */
+            margin-left: auto;      /* 将按钮推到右侧 */
+        }
+
+        /* 按钮基础样式 */
+        .btn {
+            padding: 8px 16px;       /* 内边距 */
+            border: none;            /* 移除边框 */
+            border-radius: 4px;      /* 圆角效果 */
+            font-size: 14px;         /* 字体大小 */
+            cursor: pointer;         /* 鼠标指针样式 */
+            transition: all 0.3s;    /* 添加过渡效果 */
+        }
+
+        /* 查询按钮样式 */
+        .btn-search {
+            background-color: #1890ff;  /* 背景颜色 */
+            color: white;               /* 文字颜色 */
+        }
+
+        /* 清空按钮样式 */
+        .btn-reset {
+            background-color: #fff;     /* 背景颜色 */
+            border: 1px solid #d9d9d9;  /* 边框样式 */
+            color: #666;                /* 文字颜色 */
+        }
+
+        /* 按钮悬停效果 */
+        .btn-search:hover {
+            background-color: #40a9ff;  /* 悬停时背景颜色变深 */
+        }
+
+        .btn-reset:hover {
+            color: #1890ff;             /* 悬停时文字颜色 */
+            border-color: #1890ff;      /* 悬停时边框颜色 */
+        }
+
+        /* 表格区域样式 */
+        .table-container {
+            background-color: #fff;
+            margin: 20px 40px;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 表格样式 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        /* 表头样式 */
+        .data-table th {
+            background-color: #fafafa;
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 500;
+            color: #333;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        /* 表格单元格样式 */
+        .data-table td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #666;
+        }
+
+        /* 表格行悬停效果 */
+        .data-table tbody tr:hover {
+            background-color: #fafafa;
+        }
+
+        /* 头像样式 */
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* 操作按钮样式 */
+        .action-btn {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-right: 8px;
+            transition: all 0.3s;
+        }
+
+        /* 编辑按钮样式 */
+        .btn-edit {
+            background-color: #e6f7ff;
+            color: #1890ff;
+        }
+
+        /* 删除按钮样式 */
+        .btn-delete {
+            background-color: #fff1f0;
+            color: #ff4d4f;
+        }
+
+        /* 操作按钮悬停效果 */
+        .btn-edit:hover {
+            background-color: #1890ff;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background-color: #ff4d4f;
+            color: white;
+        }
+
+        /* 页脚样式 */
+        .footer {
+            margin-top: auto;        /* 将页脚推到底部 */
+            background-color: #333;  /* 深灰色背景 */
+            color: #fff;            /* 白色文字 */
+            padding: 20px 0;        /* 上下内边距 */
+            text-align: center;     /* 文字居中对齐 */
+        }
+
+        /* 公司名称样式 */
+        .company-name {
+            font-size: 16px;
+            margin-bottom: 8px;     /* 与版权信息保持间距 */
+        }
+
+        /* 版权信息样式 */
+        .copyright {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);  /* 稍微淡一点的白色 */
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶栏区域 -->
+    <header class="header">
+        <!-- 系统标题 -->
+        <h1 class="header-title">Tlias智能学习辅助系统</h1>
+        <!-- 退出登录链接 -->
+        <a href="#" class="logout-link">退出登录</a>
+    </header>
+    <!-- 将整个内容区域包裹在一个 id="app" 的 div 中 -->
+    <div id="app">
+        <!-- 搜索表单区域 -->
+        <div class="search-form">
+            <!-- 表单容器 -->
+            <form class="form-container" @submit.prevent="handleSearch">
+                <!-- 姓名输入框 -->
+                <div class="form-item">
+                    <label for="name">姓名：</label>
+                    <input type="text" id="name" placeholder="请输入姓名" v-model="searchEmp.name" >
+                </div>
+
+                <!-- 性别下拉框 -->
+                <div class="form-item">
+                    <label for="gender">性别：</label>
+                    <select id="gender" v-model="searchEmp.gender">
+                        <option value="">请选择</option>
+                        <option value="1">男</option>
+                        <option value="2">女</option>
+                    </select>
+                </div>
+
+                <!-- 职位下拉框 -->
+                <div class="form-item">
+                    <label for="position">职位：</label>
+                    <select id="position" v-model="searchEmp.job">
+                        <option value="">请选择</option>
+                        <option value="1">班主任</option>
+                        <option value="2">讲师</option>
+                        <option value="3">学工主管</option>
+                        <option value="4">教研主管</option>
+                        <option value="5">咨询师</option>
+                    </select>
+                </div>
+
+                <!-- 按钮组 -->
+                <div class="button-group">
+                    <button type="submit" class="btn btn-search">查询</button>
+                    <button type="reset" class="btn btn-reset" @click="handleReset">清空</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 表格展示区域 -->
+        <div class="table-container">
+           
+            <table class="data-table">
+                <!-- 表头 -->
+                <thead>
+                    <tr>
+                        <th>姓名</th>
+                        <th>性别</th>
+                        <th>头像</th>
+                        <th>职位</th>
+                        <th>入职日期</th>
+                        <th>最后操作时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <!-- 表格内容 -->
+                <tbody>
+                    <tr v-for="item in tableData" :key="item.id" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave">
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.gender === 1 ? '男' : '女' }}</td>
+                        <td><img :src="item.image" :alt="item.name" class="avatar"></td>
+                        <td>{{ getJobName(item.job) }}</td>
+                        <td>{{ item.entrydate }}</td>
+                        <td>{{ item.updatetime }}</td>
+                        <td>
+                            <button class="action-btn btn-edit">编辑</button>
+                            <button class="action-btn btn-delete" @click="handleDelete(item)">删除</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 页脚版权区域 -->
+    <footer class="footer">
+        <div class="company-name">星逝科技股份有限公司</div>
+        <div class="copyright">版权所有 Copyright 2006-2024 All Rights Reserved</div>
+    </footer>
+
+    <!-- JavaScript代码 -->
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    searchEmp: {
+                        name: '',
+                        gender: '',
+                        job: ''
+                    },
+                    tableData: [] // 初始化为空数组
+                }
+            },
+            methods: {
+                // 获取职位名称
+                getJobName(job) {
+                    const jobMap = {
+                        '1': '班主任',
+                        '2': '讲师',
+                        '3': '学工主管',
+                        '4': '教研主管',
+                        '5': '咨询师'
+                    };
+                    return jobMap[job] || '';
+                },
+                // 处理鼠标移入
+                handleMouseEnter(event) {
+                    event.currentTarget.style.backgroundColor = '#f2e2e2';
+                },
+                // 处理鼠标移出
+                handleMouseLeave(event) {
+                    event.currentTarget.style.backgroundColor = '#fff';
+                },
+                // 处理删除
+                handleDelete(item) {
+                    if (confirm(`您是否要删除${item.name}这条记录？`)) {
+                        const index = this.tableData.findIndex(data => data.id === item.id);
+                        if (index !== -1) {
+                            this.tableData.splice(index, 1);
+                        }
+                    }
+                },
+                // 获取员工列表数据
+                async getEmpList() {
+                    try {
+                        const response = await axios.get('/users/list');
+                        if (response.data.code === 1) {
+                            this.tableData = response.data.data;
+                        } else {
+                            alert('获取数据失败：' + response.data.msg);
+                        }
+                    } catch (error) {
+                        console.error('获取数据出错：', error);
+                        alert('获取数据出错，请稍后重试');
+                    }
+                },
+                // 处理查询
+                async handleSearch() {
+                    try {
+                        // 构建查询参数
+                        const params = {};
+                        if (this.searchEmp.name) params.name = this.searchEmp.name;
+                        if (this.searchEmp.gender) params.gender = this.searchEmp.gender;
+                        if (this.searchEmp.job) params.job = this.searchEmp.job;
+
+                        const response = await axios.get('/list', {
+                            params: params
+                        });
+
+                        if (response.data.code === 1) {
+                            this.tableData = response.data.data;
+                        } else {
+                            alert('查询失败：' + response.data.msg);
+                        }
+                    } catch (error) {
+                        console.error('查询出错：', error);
+                        alert('查询出错，请稍后重试');
+                    }
+                },
+                // 处理清空
+                handleReset() {
+                    this.searchEmp = {
+                        name: '',
+                        gender: '',
+                        job: ''
+                    };
+                    // 清空后重新获取所有数据
+                    this.getEmpList();
+                }
+            },
+            // 在组件挂载时获取数据
+            mounted() {
+                this.getEmpList();
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html> 
