@@ -56,7 +56,7 @@ Medical-Agent/
 
 3. **前端链接**
    ```bash
-https://github.com/Andy123211/medical-chat-assistant-ui
+   https://github.com/Andy123211/medical-chat-assistant-ui
    ```
 
 4. **访问系统**
