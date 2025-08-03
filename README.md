@@ -54,11 +54,9 @@ Medical-Agent/
    - 配置 `src/main/resources/application.properties` 数据库等信息
    - 使用 IDE 或命令行运行 `MadicalApp.java`
 
-3. **前端启动**
+3. **前端链接**
    ```bash
-   cd xiaozhi-ui
-   npm install
-   npm run dev
+https://github.com/Andy123211/medical-chat-assistant-ui
    ```
 
 4. **访问系统**
